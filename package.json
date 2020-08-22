@@ -1,0 +1,41 @@
+{
+  "name": "gas-triggers",
+  "version": "0.0.1",
+  "description": "Utility library for Google Apps script triggers",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha",
+    "build": "babel src --out-file dist/dist.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Oaphi/gas-triggers.git"
+  },
+  "keywords": [
+    "triggers",
+    "appsscript",
+    "events"
+  ],
+  "author": "Oleg Valter",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Oaphi/gas-triggers/issues"
+  },
+  "homepage": "https://github.com/Oaphi/gas-triggers#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.10.5",
+    "@babel/core": "^7.11.4",
+    "@babel/preset-env": "^7.11.0",
+    "@google/clasp": "^2.3.0",
+    "@types/google-apps-script": "^1.0.14",
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "jshint": "^2.12.0",
+    "mocha": "^8.1.1"
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-env"
+    ]
+  }
+}
