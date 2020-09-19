@@ -6,7 +6,10 @@
 
 **/assets/**
 
+**/src/**
+
 *.txt
 *.pem
 *.csv
-*.json
+*.clasp.json
+*.d.ts
