@@ -85,19 +85,54 @@ function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 /// <reference types="../index" />
-var getOrInstallTrigger = function getOrInstallTrigger() {
-  var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-      callbackName = _ref.callbackName,
-      id = _ref.id,
+var installTrigger_ = function installTrigger_(_ref) {
+  var _ref$unique = _ref.unique,
+      unique = _ref$unique === void 0 ? false : _ref$unique,
       installer = _ref.installer,
-      _ref$installerConfig = _ref.installerConfig,
-      installerConfig = _ref$installerConfig === void 0 ? {} : _ref$installerConfig,
-      _ref$onGet = _ref.onGet,
-      onGet = _ref$onGet === void 0 ? function (trigger) {
+      callbackName = _ref.callbackName;
+
+  if (unique) {
+    var name = getUniquePropName_(callbackName);
+    setProperty_(name);
+  }
+
+  return installer({
+    callbackName: callbackName
+  });
+};
+
+var checkInstalledTrigger = function checkInstalledTrigger() {
+  var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      callbackName = _ref2.callbackName,
+      _ref2$onError = _ref2.onError,
+      onError = _ref2$onError === void 0 ? function (err) {
+    return console.warn(err);
+  } : _ref2$onError,
+      _ref2$type = _ref2.type,
+      type = _ref2$type === void 0 ? ScriptApp.EventType.CLOCK : _ref2$type;
+
+  try {} catch (error) {}
+};
+
+var getOrInstallTrigger = function getOrInstallTrigger() {
+  var _ref3 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      _ref3$unique = _ref3.unique,
+      unique = _ref3$unique === void 0 ? false : _ref3$unique,
+      callbackName = _ref3.callbackName,
+      id = _ref3.id,
+      installer = _ref3.installer,
+      _ref3$installerConfig = _ref3.installerConfig,
+      installerConfig = _ref3$installerConfig === void 0 ? {} : _ref3$installerConfig,
+      _ref3$onError = _ref3.onError,
+      onError = _ref3$onError === void 0 ? function (err) {
+    return console.warn(err);
+  } : _ref3$onError,
+      _ref3$onGet = _ref3.onGet,
+      onGet = _ref3$onGet === void 0 ? function (trigger) {
     return console.log("found trigger: ".concat(trigger.getHandlerFunction()));
-  } : _ref$onGet,
-      _ref$type = _ref.type,
-      type = _ref$type === void 0 ? ScriptApp.EventType.CLOCK : _ref$type;
+  } : _ref3$onGet,
+      _ref3$type = _ref3.type,
+      type = _ref3$type === void 0 ? ScriptApp.EventType.CLOCK : _ref3$type;
 
   try {
     var triggers = ScriptApp.getProjectTriggers();
@@ -110,27 +145,29 @@ var getOrInstallTrigger = function getOrInstallTrigger() {
       return sameId && sameType && sameFunc;
     }),
         _triggers$filter2 = _slicedToArray(_triggers$filter, 1),
-        trigger = _triggers$filter2[0];
+        oldTrigger = _triggers$filter2[0];
 
-    trigger && onGet(trigger);
+    oldTrigger && onGet(oldTrigger);
     var customOrDefaultInstaller = installer || installersMap.get(type) || installer;
-    return trigger || customOrDefaultInstaller({
+    return oldTrigger || installTrigger_({
+      unique: unique,
+      installer: customOrDefaultInstaller,
       callbackName: callbackName
     });
   } catch (error) {
-    console.warn("error during trigger check ".concat(error));
+    onError("error during trigger check ".concat(error));
     return null;
   }
 };
 
 var listTriggers = function listTriggers() {
-  var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-      _ref2$onError = _ref2.onError,
-      onError = _ref2$onError === void 0 ? console.warn : _ref2$onError,
-      _ref2$safe = _ref2.safe,
-      safe = _ref2$safe === void 0 ? false : _ref2$safe,
-      _ref2$type = _ref2.type,
-      type = _ref2$type === void 0 ? "project" : _ref2$type;
+  var _ref4 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      _ref4$onError = _ref4.onError,
+      onError = _ref4$onError === void 0 ? console.warn : _ref4$onError,
+      _ref4$safe = _ref4.safe,
+      safe = _ref4$safe === void 0 ? false : _ref4$safe,
+      _ref4$type = _ref4.type,
+      type = _ref4$type === void 0 ? "project" : _ref4$type;
 
   try {
     var typeMap = new Map([["project", ScriptApp.getProjectTriggers], ["user", ScriptApp.getUserTriggers]]);
@@ -147,6 +184,43 @@ var listTriggers = function listTriggers() {
   } catch (error) {
     onError(error);
     return [];
+  }
+};
+"use strict";
+
+var trackTriggers = function trackTriggers() {
+  var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      _ref$onError = _ref.onError,
+      onError = _ref$onError === void 0 ? function (err) {
+    return console.warn(err);
+  } : _ref$onError,
+      _ref$type = _ref.type,
+      type = _ref$type === void 0 ? "project" : _ref$type;
+
+  try {
+    //get unique name for trigger storage
+    var name = getUniquePropName_("triggers"); //initialize it to Object<user : trigger> where trigger is type/callbackName
+
+    var trackingList = {}; //get installed triggers for current user
+
+    var installedForThisUser = listTriggers({
+      onError: onError,
+      safe: true,
+      type: type
+    }); //add to tracking list
+
+    installedForThisUser.forEach(function (_ref2) {
+      var id = _ref2.id,
+          funcName = _ref2.funcName,
+          type = _ref2.type;
+      return trackingList["".concat(funcName, "/").concat(type)] = id;
+    }); //save info
+
+    setProperty_(name, JSON.stringify(trackingList));
+    return true;
+  } catch (error) {
+    onError(error);
+    return false;
   }
 };
 "use strict";
@@ -228,4 +302,32 @@ var closestValue = function closestValue() {
     }
   });
   return values[closestIndex];
+};
+
+var getProperty_ = function getProperty_(key, def) {
+  var store = PropertiesService.getScriptProperties();
+  var prop = store.getProperty(key);
+  return prop !== void 0 ? prop : def;
+};
+
+var getUniquePropName_ = function getUniquePropName_(key) {
+  var store = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : PropertiesService.getScriptProperties();
+  var names = store.getKeys();
+  var uniqueName = "".concat(key, "/").concat(Utilities.getUuid());
+
+  while (names.includes(uniqueName)) {
+    uniqueName = getUniquePropName_(key, store);
+  }
+
+  return uniqueName;
+};
+
+var setProperty_ = function setProperty_(key, val) {
+  try {
+    var store = PropertiesService.getScriptProperties();
+    store.setProperty(key, val);
+    return true;
+  } catch (error) {
+    return false;
+  }
 };
