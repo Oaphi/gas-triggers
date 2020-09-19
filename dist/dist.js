@@ -1,20 +1,8 @@
 "use strict";
 
-/**
- * @typedef {{
- *  at : (number|string|Date|undefined),
- *  days : (number|undefined),
- *  hourly : (number|undefined),
- *  minutely : (number|undefined),
- *  weeks : (number|undefined),
- *  weekDay : (GoogleAppsScript.Base.Weekday|undefined),
- *  timezone : string
- * }} TimedTriggerInstallConfig
- * 
- * @param {TimedTriggerInstallConfig} 
- */
 var timedTriggerInstaller = function timedTriggerInstaller(_ref) {
   var at = _ref.at,
+      atHour = _ref.atHour,
       minutely = _ref.minutely,
       hourly = _ref.hourly,
       days = _ref.days,
@@ -22,55 +10,65 @@ var timedTriggerInstaller = function timedTriggerInstaller(_ref) {
       weekDay = _ref.weekDay,
       _ref$timezone = _ref.timezone,
       timezone = _ref$timezone === void 0 ? Session.getScriptTimeZone() : _ref$timezone;
-  return (
-    /**
-     * @param {{
-     *  callbackName : string
-     * }}
-     * @returns {GoogleAppsScript.Script.Trigger}
-     */
-    function (_ref2) {
-      var callbackName = _ref2.callbackName;
+  return function (_ref2) {
+    var callbackName = _ref2.callbackName;
 
-      try {
-        var builder = ScriptApp.newTrigger(callbackName).timeBased(); //only valid values are 1, 5, 10, 15, 30
+    try {
+      var builder = ScriptApp.newTrigger(callbackName).timeBased(); //only valid values are 1, 5, 10, 15, 30
 
-        if (!hourly && !at && minutely) {
-          var validatedMinutely = closestValue({
-            value: minutely,
-            values: [1, 5, 10, 15, 30]
-          });
-          builder.everyMinutes(validatedMinutely);
-        }
-
-        if (hourly && !at && !minutely) {
-          builder.everyHours(hourly);
-        }
-
-        if (!hourly && at && !minutely) {
-          builder.at(new Date(at));
-        }
-
-        if (days && !weeks) {
-          var atDate = new Date(at || Date.now());
-          builder.everyDays(days).atHour(atDate.getHours());
-        }
-
-        if (weekDay && !weeks) {
-          builder.onWeekDay(weekDay);
-        }
-
-        if (weeks) {
-          builder.everyWeeks(weeks).onWeekDay(weekDay || ScriptApp.WeekDay.SUNDAY);
-        }
-
-        builder.inTimezone(timezone);
-        return builder.create();
-      } catch (error) {
-        console.warn(error);
+      if (!hourly && !at && minutely) {
+        var validatedMinutely = closestValue({
+          value: minutely,
+          values: [1, 5, 10, 15, 30]
+        });
+        builder.everyMinutes(validatedMinutely);
       }
+
+      if (weeks) {
+        builder.everyWeeks(weeks).onWeekDay(weekDay || ScriptApp.WeekDay.SUNDAY);
+      }
+
+      if (days && !weeks) {
+        var atDate = new Date(at !== void 0 ? at : Date.now());
+        builder.everyDays(days).atHour(atHour !== void 0 ? atHour : atDate.getHours());
+      }
+
+      if (hourly && !at && !minutely) {
+        builder.everyHours(hourly);
+      }
+
+      if (!hourly && !days && at && !minutely) {
+        builder.at(new Date(at));
+      }
+
+      if (weekDay && !weeks) {
+        builder.onWeekDay(weekDay);
+      }
+
+      builder.inTimezone(timezone);
+      return builder.create();
+    } catch (error) {
+      console.warn(error);
     }
-  );
+  };
+};
+/**
+ * @type {GoogleAppsScript.Triggers.isInHourlyRange}
+ */
+
+
+var isInHourlyRange = function isInHourlyRange() {
+  var _ref3 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      _ref3$hour = _ref3.hour,
+      hour = _ref3$hour === void 0 ? new Date().getHours() : _ref3$hour,
+      _ref3$start = _ref3.start,
+      start = _ref3$start === void 0 ? 0 : _ref3$start,
+      _ref3$end = _ref3.end,
+      end = _ref3$end === void 0 ? 23 : _ref3$end;
+
+  var validEnd = end > 23 ? 23 : end < 0 ? 0 : end;
+  var validStart = start > 23 ? 23 : start < 0 ? 0 : start;
+  hour >= validEnd && hour <= validStart;
 };
 "use strict";
 
@@ -86,19 +84,7 @@ function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-/**
- * @summary gets or installs a script trigger
- * 
- * @param {{
- *  callbackName : string,
- *  id : (string|undefined),
- *  installer : function ({ callbackName : string }) : GoogleAppsScript.Script.Trigger,
- *  installerConfig : TimedTriggerInstallConfig,
- *  type : (GoogleAppsScript.Script.EventType|undefined)
- * }}
- * 
- * @returns {?GoogleAppsScript.Script.Trigger}
- */
+/// <reference types="../index" />
 var getOrInstallTrigger = function getOrInstallTrigger() {
   var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
       callbackName = _ref.callbackName,
@@ -106,6 +92,10 @@ var getOrInstallTrigger = function getOrInstallTrigger() {
       installer = _ref.installer,
       _ref$installerConfig = _ref.installerConfig,
       installerConfig = _ref$installerConfig === void 0 ? {} : _ref$installerConfig,
+      _ref$onGet = _ref.onGet,
+      onGet = _ref$onGet === void 0 ? function (trigger) {
+    return console.log("found trigger: ".concat(trigger.getHandlerFunction()));
+  } : _ref$onGet,
       _ref$type = _ref.type,
       type = _ref$type === void 0 ? ScriptApp.EventType.CLOCK : _ref$type;
 
@@ -122,7 +112,7 @@ var getOrInstallTrigger = function getOrInstallTrigger() {
         _triggers$filter2 = _slicedToArray(_triggers$filter, 1),
         trigger = _triggers$filter2[0];
 
-    trigger && console.log("found trigger: ".concat(trigger.getHandlerFunction()));
+    trigger && onGet(trigger);
     var customOrDefaultInstaller = installer || installersMap.get(type) || installer;
     return trigger || customOrDefaultInstaller({
       callbackName: callbackName
@@ -132,27 +122,96 @@ var getOrInstallTrigger = function getOrInstallTrigger() {
     return null;
   }
 };
+
+var listTriggers = function listTriggers() {
+  var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      _ref2$onError = _ref2.onError,
+      onError = _ref2$onError === void 0 ? console.warn : _ref2$onError,
+      _ref2$safe = _ref2.safe,
+      safe = _ref2$safe === void 0 ? false : _ref2$safe,
+      _ref2$type = _ref2.type,
+      type = _ref2$type === void 0 ? "project" : _ref2$type;
+
+  try {
+    var typeMap = new Map([["project", ScriptApp.getProjectTriggers], ["user", ScriptApp.getUserTriggers]]);
+    var tgs = typeMap.get(type).call(ScriptApp, getActiveDoc_({
+      onError: onError
+    }));
+    return safe ? tgs.map(function (tgr) {
+      return {
+        funcName: tgr.getHandlerFunction(),
+        id: tgr.getUniqueId(),
+        type: JSON.stringify(tgr.getEventType())
+      };
+    }) : tgs;
+  } catch (error) {
+    onError(error);
+    return [];
+  }
+};
 "use strict";
 
-/**
- * @typedef {{
- *  value : any,
- *  values : any[]
- * }} ClosestConfig
- * 
- * @summary finds closest value in the array
- * @param {ClosestConfig} [config]
- */
-var closestValue = function closestValue() {
-  var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
-  if (!("value" in config)) {
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+var DocTypes = function (e) {
+  e[e.SPREADSHEET = "spreadsheet"] = 0;
+  e[e.PRESENTATION = "presentation"] = 0;
+  e[e.FORM = "form"] = 0;
+  e[e.DOCUMENT = "document"] = 0;
+  return e;
+}({});
+
+var isCorrectUIgetter_ = function isCorrectUIgetter_(getter) {
+  try {
+    return !!getter();
+  } catch (error) {
+    return false;
+  }
+};
+
+var getActiveDoc_ = function getActiveDoc_() {
+  var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      _ref$type = _ref.type,
+      type = _ref$type === void 0 ? DocTypes.SPREADSHEET : _ref$type,
+      _ref$onError = _ref.onError,
+      onError = _ref$onError === void 0 ? console.warn : _ref$onError;
+
+  var ActiveDocMap = new Map();
+  ActiveDocMap.set(DocTypes.DOCUMENT, DocumentApp.getActiveDocument);
+  ActiveDocMap.set(DocTypes.FORM, FormApp.getActiveForm);
+  ActiveDocMap.set(DocTypes.SPREADSHEET, SpreadsheetApp.getActiveSpreadsheet);
+  ActiveDocMap.set(DocTypes.PRESENTATION, SlidesApp.getActivePresentation);
+  var getter = ActiveDocMap.get(type);
+
+  try {
+    var valid = isCorrectUIgetter_(getter) ? getter : _toConsumableArray(ActiveDocMap.values()).find(isCorrectUIgetter_);
+    return valid();
+  } catch (error) {
+    onError(error);
+    return null;
+  }
+};
+
+var closestValue = function closestValue() {
+  var settings = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+  if (!("value" in settings)) {
     return null;
   }
 
-  var value = config.value,
-      _config$values = config.values,
-      values = _config$values === void 0 ? [] : _config$values;
+  var value = settings.value,
+      _settings$values = settings.values,
+      values = _settings$values === void 0 ? [] : _settings$values;
 
   if (!values.length) {
     return null;
