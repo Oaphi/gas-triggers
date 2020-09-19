@@ -1,21 +1,11 @@
-/**
- * @summary gets or installs a script trigger
- * 
- * @param {{
- *  callbackName : string,
- *  id : (string|undefined),
- *  installer : function ({ callbackName : string }) : GoogleAppsScript.Script.Trigger,
- *  installerConfig : TimedTriggerInstallConfig,
- *  type : (GoogleAppsScript.Script.EventType|undefined)
- * }}
- * 
- * @returns {?GoogleAppsScript.Script.Trigger}
- */
+/// <reference types="../index" />
+
 const getOrInstallTrigger = ({
     callbackName,
     id,
     installer,
     installerConfig = {},
+    onGet = (trigger) => console.log(`found trigger: ${trigger.getHandlerFunction()}`),
     type = ScriptApp.EventType.CLOCK
 } = {}) => {
 
@@ -37,7 +27,7 @@ const getOrInstallTrigger = ({
                 }
             );
 
-        trigger && console.log(`found trigger: ${trigger.getHandlerFunction()}`);
+        trigger && onGet(trigger);
 
         const customOrDefaultInstaller = installer || installersMap.get(type) || installer;
 
@@ -48,4 +38,31 @@ const getOrInstallTrigger = ({
         return null;
     }
 
+};
+
+const listTriggers = ({
+    onError = console.warn,
+    safe = false,
+    type = "project"
+} = {}) => {
+
+    try {
+
+        const typeMap = new Map([
+            ["project", ScriptApp.getProjectTriggers],
+            ["user", ScriptApp.getUserTriggers]
+        ]);
+
+        const tgs = typeMap.get(type).call(ScriptApp, getActiveDoc_({ onError }));
+
+        return safe ? tgs.map((tgr) => ({
+            funcName: tgr.getHandlerFunction(),
+            id: tgr.getUniqueId(),
+            type: JSON.stringify(tgr.getEventType())
+        })) : tgs;
+
+    } catch (error) {
+        onError(error);
+        return [];
+    }
 };
