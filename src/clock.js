@@ -1,9 +1,14 @@
 const timedTriggerInstaller = ({
-    at, atHour,
+    after,
+    afterSeconds,
+    afterMinutes,
+    at, atHour, atMinute,
     minutely, hourly,
     days, weeks, weekDay,
-    timezone = Session.getScriptTimeZone()
+    timezone = Session.getScriptTimeZone(),
+    onError = (err) => console.warn(err)
 }) =>
+
 
     ({ callbackName }) => {
 
@@ -28,7 +33,12 @@ const timedTriggerInstaller = ({
 
             if (days && !weeks) {
                 const atDate = new Date(at !== void 0 ? at : Date.now());
-                builder.everyDays(days).atHour(atHour !== void 0 ? atHour : atDate.getHours());
+                builder
+                    .everyDays(days)
+                    .atHour(atHour !== void 0 ? atHour : atDate.getHours())
+                    .nearMinute(atMinute !== void 0 ?
+                        atMinute || 1 :
+                        atDate.getMinutes() || 1);
             }
 
             if (hourly && !at && !minutely) {
@@ -43,12 +53,19 @@ const timedTriggerInstaller = ({
                 builder.onWeekDay(weekDay);
             }
 
+            if (afterMinutes || afterSeconds || after) {
+                const minuteMs = (afterMinutes || 0) * 60 * 1e3;
+                const secondMs = (afterSeconds || 0) * 1e3;
+                builder.after(minuteMs + secondMs + (after || 0));
+            }
+
             builder.inTimezone(timezone);
 
             return builder.create();
 
         } catch (error) {
-            console.warn(error);
+            onError(`failed to install clock trigger: ${error}`);
+            return null;
         }
 
     };
