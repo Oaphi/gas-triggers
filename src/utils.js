@@ -62,3 +62,44 @@ const closestValue = (settings = {}) => {
 
     return values[closestIndex];
 };
+
+const getProperty_ = (key, def) => {
+    const store = Dependencies_.properties.getScriptProperties();
+    const prop = store.getProperty(key);
+    return prop || def;
+};
+
+const getUniquePropName_ = (key, store = Dependencies_.properties.getScriptProperties()) => {
+    const names = store.getKeys();
+    
+    let uniqueName = `${key}/${Utilities.getUuid()}`;
+    while (names.includes(uniqueName)) {
+        uniqueName = getUniquePropName_(key, store);
+    }
+
+    return uniqueName;
+};
+
+const setProperty_ = (key, val) => {
+    try {
+        const store = Dependencies_.properties.getScriptProperties();
+        store.setProperty(key, val);
+        return true;
+    }
+    catch (error) {
+        console.warn(error);
+        return false;
+    }
+};
+
+const deleteProperty_ = (key) => {
+    try {
+        const store = Dependencies_.properties.getScriptProperties();
+        store.deleteProperty(key);
+        return true;
+    }
+    catch (error) {
+        console.warn(error);
+        return false;
+    }
+};
