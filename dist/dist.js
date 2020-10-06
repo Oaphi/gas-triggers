@@ -22,7 +22,6 @@ var timedTriggerInstaller = function timedTriggerInstaller(_ref) {
     var callbackName = _ref2.callbackName;
 
     try {
-      console.log(atHour, atMinute, minutely, hourly, callbackName, days);
       var builder = ScriptApp.newTrigger(callbackName).timeBased(); //only valid values are 1, 5, 10, 15, 30
 
       if (!hourly && !at && minutely) {
@@ -230,7 +229,6 @@ var disableTracked = function disableTracked(_ref) {
   } : _ref$onError;
 
   try {
-    console.log("DISABLING");
     var info = getTrackedTriggerInfo({
       funcName: funcName,
       type: type
@@ -280,7 +278,6 @@ var enableTracked = function enableTracked(_ref2) {
   } : _ref2$onError;
 
   try {
-    console.log("ENABLING");
     var info = getTrackedTriggerInfo({
       funcName: funcName,
       type: type
@@ -391,7 +388,7 @@ var TriggerTypes = function (e) {
  */
 
 
-var getOrInstallSelfRescheduling = function getOrInstallSelfRescheduling(_ref2) {
+var getOrInstallSelfRescheduling_ = function getOrInstallSelfRescheduling_(_ref2) {
   var callbackName = _ref2.callbackName,
       id = _ref2.id,
       installer = _ref2.installer,
