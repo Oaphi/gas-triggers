@@ -7,7 +7,8 @@
     "test": "mocha",
     "build": "babel src --out-file dist/dist.js && git add \"*dist*\"",
     "push": "npm run build && clasp push --force",
-    "version": "clasp push --force && clasp deploy AKfycbwjxjTJmhARn6K_bl5dOduV8LJEVxPcbEpcWtdQxSvYZDcel5PUy5AnBiwjMpUmIuyBqw"
+    "deploy": "clasp deploy -i AKfycbwjxjTJmhARn6K_bl5dOduV8LJEVxPcbEpcWtdQxSvYZDcel5PUy5AnBiwjMpUmIuyBqw",
+    "version": "npm run push --force && npm run deploy"
   },
   "repository": {
     "type": "git",
