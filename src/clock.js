@@ -80,5 +80,5 @@ var isInHourlyRange = ({
 } = {}) => {
     const validEnd = end > 23 ? 23 : end < 0 ? 0 : end;
     const validStart = start > 23 ? 23 : start < 0 ? 0 : start;
-    hour >= validEnd && hour <= validStart;
+    return hour >= validEnd && hour <= validStart;
 };
