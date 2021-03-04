@@ -22,7 +22,7 @@ var timedTriggerInstaller = function timedTriggerInstaller(_ref) {
     var callbackName = _ref2.callbackName;
 
     try {
-      var builder = ScriptApp.newTrigger(callbackName).timeBased(); //only valid values are 1, 5, 10, 15, 30
+      var builder = ScriptApp.newTrigger(callbackName).timeBased().inTimezone(timezone); //only valid values are 1, 5, 10, 15, 30
 
       if (!hourly && !at && minutely) {
         var validatedMinutely = closestValue({
@@ -59,7 +59,6 @@ var timedTriggerInstaller = function timedTriggerInstaller(_ref) {
         builder.after(minuteMs + secondMs + (after || 0));
       }
 
-      builder.inTimezone(timezone);
       return builder.create();
     } catch (error) {
       onError("failed to install clock trigger: ".concat(error));
@@ -83,7 +82,7 @@ var isInHourlyRange = function isInHourlyRange() {
 
   var validEnd = end > 23 ? 23 : end < 0 ? 0 : end;
   var validStart = start > 23 ? 23 : start < 0 ? 0 : start;
-  hour >= validEnd && hour <= validStart;
+  return hour <= validEnd && hour >= validStart;
 };
 "use strict";
 
@@ -135,6 +134,7 @@ var deleteTracked = function deleteTracked() {
     }
 
     ScriptApp.deleteTrigger(trigger);
+    ScriptApp.invalidateAuth();
     return true;
   } catch (error) {
     onError(error);
@@ -168,6 +168,44 @@ var deleteAllTracked = function deleteAllTracked() {
   } catch (error) {
     onError(error);
     return false;
+  }
+};
+/**
+ * 
+ * @param {{
+ *  email ?: string,
+ *  onDelete ?: (email: string) => any
+ * }} 
+ */
+
+
+var deleteAllIf = function deleteAllIf(_ref4) {
+  var email = _ref4.email,
+      _ref4$onError = _ref4.onError,
+      onError = _ref4$onError === void 0 ? function (err) {
+    return console.warn(err);
+  } : _ref4$onError,
+      onDelete = _ref4.onDelete;
+
+  try {
+    var willDelete = false;
+
+    if (email) {
+      var compared = Session.getEffectiveUser().getEmail();
+      willDelete = compared === email;
+    }
+
+    if (!willDelete) {
+      return;
+    }
+
+    var trgs = ScriptApp.getProjectTriggers();
+    trgs.forEach(function (trigger) {
+      return ScriptApp.deleteTrigger(trigger);
+    });
+    return onDelete(email);
+  } catch (error) {
+    return onError(error);
   }
 };
 "use strict";
@@ -445,12 +483,6 @@ var getOrInstallTrigger = function getOrInstallTrigger() {
       funcName: callbackName
     });
     var oldTrigger = triggers.find(filter);
-    console.log({
-      oldTrigger: oldTrigger,
-      type: type,
-      unique: unique,
-      installer: installer
-    });
 
     if (oldTrigger) {
       return onGet(oldTrigger);

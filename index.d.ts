@@ -17,10 +17,10 @@ declare namespace GoogleAppsScript {
 
   namespace Triggers {
     enum TriggerTypes {
-      SUBMIT = GoogleAppsScript.Script.EventType.ON_FORM_SUBMIT,
-      CHANGE = GoogleAppsScript.Script.EventType.ON_CHANGE,
-      CLOCK = GoogleAppsScript.Script.EventType.CLOCK,
-      EDIT = GoogleAppsScript.Script.EventType.ON_EDIT,
+      SUBMIT,
+      CHANGE,
+      CLOCK,
+      EDIT,
     }
 
     interface CommonOptions {
@@ -46,13 +46,18 @@ declare namespace GoogleAppsScript {
     interface TriggerInstallOptions extends CommonOptions {
       callbackName: string;
       id?: string;
-      installer?: triggerInstaller;
+      installer?: <R>(options: TriggerInstallerOptions & CommonOptions) => R;
       installerConfig?: TimedTriggerOptions;
       onInstall?: (trg: GoogleAppsScript.Script.Trigger) => any;
       onInstallFailure?: (msg: string) => any;
       onGet?: (trg: GoogleAppsScript.Script.Trigger) => any;
       type?: TriggerTypes;
       unique?: boolean;
+    }
+
+    interface TriggerDeleteOptions extends CommonOptions {
+      email?: string;
+      onDelete: (email: string) => any;
     }
 
     interface ReschedulableInstallOptions extends TriggerInstallOptions {
@@ -68,7 +73,7 @@ declare namespace GoogleAppsScript {
 
     interface isInHourlyRange {
       (
-        options: Events.TimeDrivenEvent & {
+        options: Partial<Events.TimeDrivenEvent> & {
           start: number;
           end: number;
         }
@@ -101,52 +106,64 @@ declare namespace GoogleAppsScript {
     }
 
     interface TrackTriggersOptions extends CommonOptions {
+      funcName?: string;
       type: TriggerType;
     }
 
     interface TriggerApp {
-      TriggerTypes: TriggerTypes;
+      TriggerTypes: typeof TriggerTypes;
       closestValue(settings: ClosestValueSettings): any;
       getOrInstallTrigger(
         settings: TriggerInstallOptions
-      ): ?GoogleAppsScript.Script.Trigger;
-      guardTracked(
-        event: GoogleAppsScript.Events.AppsScriptEvent,
-        callback: (ev: GoogleAppsScript.Events.AppsScriptEvent) => any
-      ): any;
-      getTrackedTriggerInfo(
-        options?: any
-      ) : ?TrackedTriggerInfo;
+      ): GoogleAppsScript.Script.Trigger | null;
+      getTrackedTriggerInfo(options?: any): TrackedTriggerInfo | null;
       getOrInstallSelfRescheduling(
         settings: TriggerInstallOptions
-      ): ?GoogleAppsScript.Script.Trigger;
+      ): GoogleAppsScript.Script.Trigger | null;
       isInHourlyRange: isInHourlyRange;
       listTriggers: listTriggers;
       use(service: GoogleAppsScript.Properties.PropertiesService): void;
     }
 
     interface TriggerApp {
-      deleteTracked(options : TrackedTriggerInfo) : boolean;
+      deleteTracked(options: TrackedTriggerInfo): boolean;
       deleteAllTracked(options?: CommonOptions): boolean;
+      deleteAllIf(options: TriggerDeleteOptions): any;
       listTrackedTriggers(): TrackedTriggerInfo[];
       trackTriggers(options?: TrackTriggersOptions): boolean;
       untrackTriggers(options?: CommonOptions): boolean;
     }
 
     interface TriggerApp {
+      enableTracked(options: TrackTriggersOptions): boolean;
+      disableTracked(options: TrackTriggersOptions): boolean;
+      guardTracked(
+        event: GoogleAppsScript.Events.AppsScriptEvent,
+        callback: (ev: GoogleAppsScript.Events.AppsScriptEvent) => any
+      ): any;
+    }
+
+    interface TriggerApp {
       timedTriggerInstaller(
         config: TimedTriggerOptions
-      ): (opts: TriggerInstallerOptions) => ?GoogleAppsScript.Script.Trigger;
+      ): (
+        opts: TriggerInstallerOptions
+      ) => GoogleAppsScript.Script.Trigger | null;
 
       editTriggerInstaller(
         config: CommonOptions
-      ): (opts: TriggerInstallerOptions) => ?GoogleAppsScript.Script.Trigger;
+      ): (
+        opts: TriggerInstallerOptions
+      ) => GoogleAppsScript.Script.Trigger | null;
 
       changeTriggerInstaller(
         config: CommonOptions
-      ): (opts: TriggerInstallerOptions) => ?GoogleAppsScript.Script.Trigger;
+      ): (
+        opts: TriggerInstallerOptions
+      ) => GoogleAppsScript.Script.Trigger | null;
     }
   }
 }
 
 declare var TriggersApp: GoogleAppsScript.Triggers.TriggerApp;
+declare var Triggers: GoogleAppsScript.Triggers.TriggerApp;
