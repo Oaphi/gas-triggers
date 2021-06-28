@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "outFile": "dist",
+        "checkJs": true,
+        "allowJs": true,
+        "skipLibCheck": true,
+        "strict": true,
+        "noEmit": true,
+        "target": "es2019",
+        "types": ["google-apps-script", "mocha", "chai"]
+    },
+    "exclude": ["dist", "node_modules"]
+}
