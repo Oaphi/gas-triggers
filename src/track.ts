@@ -1,4 +1,4 @@
-type ErrLoggable<T> = T & { onError?: (err: Error) => void };
+type ErrLoggable<T> = T & { onError?: (err: string | Error) => void };
 
 type TriggerType = "project" | "user";
 
@@ -87,7 +87,7 @@ const trackTriggers = ({
 
         const trackingList: Record<string, string> = {};
 
-        const installedForThisUser = listTriggers({
+        const installedForThisUser = <TriggerInfo[]>listTriggers({
             onError,
             safe: true,
             type,
@@ -133,7 +133,7 @@ const trackTrigger = (
         const key = getTrackingPropertyName_();
         const trackingList = JSON.parse(getProperty_(key, "{}"));
 
-        const { id, ...rest } = triggerToInfo(trigger);
+        const { id, ...rest } = triggerToInfo_(trigger);
 
         const record = infoToRecord_({
             enabled: true,
