@@ -1,12 +1,12 @@
 {
     "compilerOptions": {
-        "outFile": "dist",
+        "outFile": "dist/index.js",
         "checkJs": true,
         "allowJs": true,
         "skipLibCheck": true,
         "strict": true,
-        "noEmit": true,
-        "target": "ES5",
+        "declaration": true,
+        "target": "es2019",
         "lib": ["es2019"],
         "types": ["google-apps-script", "mocha", "chai"],
         "allowUnreachableCode": false,
