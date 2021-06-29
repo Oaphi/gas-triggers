@@ -6,7 +6,7 @@ class DependencyError extends Error {
     }
 }
 
-var Dependencies_: {
+const Dependencies_: {
     properties: GoogleAppsScript.Properties.PropertiesService | null;
 } = {
     properties: null,
@@ -15,3 +15,5 @@ var Dependencies_: {
 const use = (service: GoogleAppsScript.Properties.PropertiesService) => {
     if ("getScriptProperties" in service) Dependencies_.properties = service;
 };
+
+Object.assign(this, { use });

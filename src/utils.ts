@@ -55,7 +55,7 @@ type ClosestValueSettings = {
 /**
  * @since finds the closest value to the given one
  */
-const closestValue = ({ value, values = [] }: ClosestValueSettings = {}) => {
+const closestValue_ = ({ value, values = [] }: ClosestValueSettings = {}) => {
     if (typeof value === "undefined") return null;
 
     if (!values.length) return null;

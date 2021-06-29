@@ -78,3 +78,8 @@ const listTriggers = ({
         return [];
     }
 };
+
+Object.assign(this, {
+    listTrackedTriggers,
+    listTriggers,
+});

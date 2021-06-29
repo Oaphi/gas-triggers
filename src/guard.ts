@@ -78,3 +78,9 @@ const enableTracked = ({
         return false;
     }
 };
+
+Object.assign(this, {
+    guardTracked,
+    disableTracked,
+    enableTracked,
+});

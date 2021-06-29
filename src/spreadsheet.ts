@@ -67,3 +67,9 @@ const formSubmitTriggerInstaller =
             return null;
         }
     };
+
+Object.assign(this, {
+    editTriggerInstaller,
+    changeTriggerInstaller,
+    formSubmitTriggerInstaller,
+});

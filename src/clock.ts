@@ -56,7 +56,7 @@ const timedTriggerInstaller =
 
             //only valid values are 1, 5, 10, 15, 30
             if (!hourly && !at && minutely) {
-                const validatedMinutely = closestValue({
+                const validatedMinutely = closestValue_({
                     value: minutely,
                     values: [1, 5, 10, 15, 30],
                 });
@@ -113,3 +113,8 @@ var isInHourlyRange = ({
     const validStart = start > 23 ? 23 : start < 0 ? 0 : start;
     return hour <= validEnd && hour >= validStart;
 };
+
+Object.assign(this, {
+    timedTriggerInstaller,
+    isInHourlyRange,
+});

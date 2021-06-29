@@ -82,3 +82,9 @@ const deleteAllIf = ({
         return onError(error);
     }
 };
+
+Object.assign(this, {
+    deleteTracked,
+    deleteAllTracked,
+    deleteAllIf,
+});

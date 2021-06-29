@@ -227,3 +227,13 @@ const updateTrackedTriggerInfo = ({
         return false;
     }
 };
+
+Object.assign(this, {
+    trackTrigger,
+    trackTriggers,
+    untrackTrigger,
+    untrackTriggers,
+    isTrackingTriggers,
+    getTrackedTriggerInfo,
+    updateTrackedTriggerInfo,
+});

@@ -148,3 +148,8 @@ const getOrInstallTrigger = ({
         return null;
     }
 };
+
+Object.assign(this, {
+    getOrInstallTrigger,
+    getOrReinstallTrigger,
+});
