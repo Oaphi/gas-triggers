@@ -2,11 +2,15 @@
 
 **/package*
 
+# ignore marketing asstets and documentation
 **/docs/**
-
 **/assets/**
 
+# ignore source (only dist is uploaded)
 **/src/**
+
+# tests are run with Mocha
+**/test/**
 
 *.txt
 *.pem
