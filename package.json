@@ -2,13 +2,14 @@
   "name": "gas-triggers",
   "version": "0.0.1",
   "description": "Utility library for Google Apps script triggers",
-  "main": "index.js",
   "scripts": {
-    "test": "mocha",
-    "build": "babel src --out-file dist/dist.js && git add \"*dist*\"",
+    "test": "mocha -r ts-node/register",
+    "clean": "rm -rf dist",
+    "build": "npm run clean && tsc && npm run test",
     "push": "npm run build && clasp push --force",
-    "deploy": "clasp deploy -i AKfycbwjxjTJmhARn6K_bl5dOduV8LJEVxPcbEpcWtdQxSvYZDcel5PUy5AnBiwjMpUmIuyBqw",
-    "version": "npm run push --force && npm run deploy"
+    "deploy": "clasp deploy -i AKfycbyub64dT1nu1Zhyg2RVbJ7Tm9RCHMqeZr015sQHRdrWO9euB6EoGi8pSkX1SEBdQv0Lhg",
+    "version": "npm run push --force && npm run deploy",
+    "list": "clasp deployments"
   },
   "repository": {
     "type": "git",
@@ -26,24 +27,15 @@
   },
   "homepage": "https://github.com/Oaphi/gas-triggers#readme",
   "devDependencies": {
-    "@babel/cli": "^7.10.5",
-    "@babel/core": "^7.11.4",
-    "@babel/preset-env": "^7.11.0",
-    "@google/clasp": "^2.3.0",
+    "@types/chai": "^4.2.19",
     "@types/google-apps-script": "^1.0.14",
+    "@types/mocha": "^8.2.2",
+    "@types/node": "^15.12.5",
+    "@types/sinon": "^10.0.2",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
-    "jshint": "^2.12.0",
-    "mocha": "^8.1.1"
-  },
-  "babel": {
-    "presets": [
-      "@babel/preset-env",
-      {}
-    ]
-  },
-  "jshintConfig": {
-    "esversion": 9,
-    "globals": {}
+    "mocha": "^8.1.1",
+    "sinon": "^11.1.1",
+    "ts-node": "^10.0.0"
   }
 }
