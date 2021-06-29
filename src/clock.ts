@@ -61,7 +61,7 @@ const timedTriggerInstaller =
                     values: [1, 5, 10, 15, 30],
                 });
 
-                builder.everyMinutes(validatedMinutely);
+                builder.everyMinutes(validatedMinutely || 30);
             }
 
             if (weeks) {
