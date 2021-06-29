@@ -8,7 +8,7 @@
         "declaration": true,
         "target": "es2019",
         "lib": ["es2019"],
-        "types": ["google-apps-script", "mocha", "chai"],
+        "types": ["google-apps-script", "mocha", "chai", "node"],
         "allowUnreachableCode": false,
         "downlevelIteration": true,
         "moduleResolution": "node",
