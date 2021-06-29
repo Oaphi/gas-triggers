@@ -131,6 +131,8 @@ const trackTrigger = (
 ) => {
     try {
         const key = getTrackingPropertyName_();
+        if (!key) return false;
+
         const trackingList = JSON.parse(getProperty_(key, "{}"));
 
         const { id, ...rest } = triggerToInfo_(trigger);
@@ -158,6 +160,8 @@ const untrackTrigger = ({
 }: UntrackOptions) => {
     try {
         const key = getTrackingPropertyName_();
+        if (!key) return false;
+
         const trackingList = JSON.parse(getProperty_(key, "{}"));
 
         const id = trigger.getUniqueId();
@@ -211,6 +215,7 @@ const updateTrackedTriggerInfo = ({
 }: UpdateTrackedOptions) => {
     try {
         const key = getTrackingPropertyName_();
+        if (!key) return false;
 
         const trackingList = JSON.parse(getProperty_(key, "{}"));
 
