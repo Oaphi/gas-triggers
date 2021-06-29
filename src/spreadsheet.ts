@@ -8,10 +8,6 @@ type ChangeInstallerOptions = ErrLoggable<CommonSheetsInstallerOptions>;
 
 type FormSubmitInstallerOptions = ErrLoggable<CommonSheetsInstallerOptions>;
 
-type InstallerOptions = {
-    callbackName: string;
-};
-
 /**
  * @summary default spreadsheet onEdit installer
  */
@@ -20,7 +16,7 @@ const editTriggerInstaller =
         spreadsheet = SpreadsheetApp.getActiveSpreadsheet(),
         onError = (err) => console.warn(err),
     }: EditInstallerOptions = {}) =>
-    ({ callbackName }: InstallerOptions) => {
+    ({ callbackName }: CommonInstallOptions) => {
         try {
             return ScriptApp.newTrigger(callbackName)
                 .forSpreadsheet(spreadsheet)
@@ -40,7 +36,7 @@ const changeTriggerInstaller =
         spreadsheet = SpreadsheetApp.getActiveSpreadsheet(),
         onError = (err) => console.warn(err),
     }: ChangeInstallerOptions = {}) =>
-    ({ callbackName }: InstallerOptions) => {
+    ({ callbackName }: CommonInstallOptions) => {
         try {
             return ScriptApp.newTrigger(callbackName)
                 .forSpreadsheet(spreadsheet)
@@ -60,7 +56,7 @@ const formSubmitTriggerInstaller =
         spreadsheet = SpreadsheetApp.getActiveSpreadsheet(),
         onError = (err) => console.warn(err),
     }: FormSubmitInstallerOptions = {}) =>
-    ({ callbackName }: InstallerOptions) => {
+    ({ callbackName }: CommonInstallOptions) => {
         try {
             return ScriptApp.newTrigger(callbackName)
                 .forSpreadsheet(spreadsheet)
