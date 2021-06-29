@@ -37,6 +37,7 @@ const makeTriggerInfoFilter_ =
  */
 const listTrackedTriggers = () => {
     const key = getTrackingPropertyName_();
+    if (!key) return [];
     const tracked: Record<string, string> = JSON.parse(getProperty_(key, "{}"));
     return Object.entries(tracked).map(([id, record]) =>
         recordToInfo_(record, id)
@@ -67,7 +68,7 @@ const listTriggers = ({
         ]);
 
         const params = [];
-        if (type === "user") params.push(getActiveDoc_({ type, onError }));
+        if (type === "user") params.push(getActiveDoc_({ onError }));
 
         const tgs = typeMap.get(type)!.apply(ScriptApp, params);
 
