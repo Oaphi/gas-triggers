@@ -10,7 +10,12 @@
         "lib": ["es2019"],
         "types": ["google-apps-script", "mocha", "chai"],
         "allowUnreachableCode": false,
-        "downlevelIteration": true
+        "downlevelIteration": true,
+        "moduleResolution": "node",
+        "removeComments": true,
+        "rootDir": "src",
+        "forceConsistentCasingInFileNames": true
     },
+    "include": ["src"],
     "exclude": ["dist", "node_modules"]
 }
