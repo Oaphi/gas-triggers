@@ -16,4 +16,4 @@ const use = (service: GoogleAppsScript.Properties.PropertiesService) => {
     if ("getScriptProperties" in service) Dependencies_.properties = service;
 };
 
-Object.assign(this, { use });
+Object.assign(this, { use, DependencyError });

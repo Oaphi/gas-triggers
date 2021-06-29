@@ -108,6 +108,13 @@ declare namespace GoogleAppsScript {
             type: TriggerTypes;
         }
 
+        class DependencyError extends Error {}
+
+        interface TriggerApp {
+            use(service: GoogleAppsScript.Properties.PropertiesService): void;
+            DependencyError: DependencyError;
+        }
+
         interface TriggerApp {
             TriggerTypes: typeof TriggerTypes;
             closestValue(settings: ClosestValueSettings): any;
@@ -120,7 +127,6 @@ declare namespace GoogleAppsScript {
             ): GoogleAppsScript.Script.Trigger | null;
             isInHourlyRange: isInHourlyRange;
             listTriggers: listTriggers;
-            use(service: GoogleAppsScript.Properties.PropertiesService): void;
         }
 
         interface TriggerApp {
