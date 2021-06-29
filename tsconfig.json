@@ -5,7 +5,7 @@
         "allowJs": true,
         "skipLibCheck": true,
         "strict": true,
-        "declaration": true,
+        "declaration": false,
         "target": "es2019",
         "lib": ["es2019"],
         "types": ["google-apps-script", "mocha", "chai", "node"],
