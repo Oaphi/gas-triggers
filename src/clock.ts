@@ -23,7 +23,7 @@ type PeriodOptions = {
     weeks?: number;
 };
 
-type TimeTriggerInstallerOptions = ErrLoggable<
+type TimeInstallerOptions = ErrLoggable<
     PeriodOptions &
         AfterTimeOptions &
         AtOptions & {
@@ -47,7 +47,7 @@ const timedTriggerInstaller =
         weekDay,
         timezone = Session.getScriptTimeZone(),
         onError = (err) => console.warn(err),
-    }: TimeTriggerInstallerOptions) =>
+    }: TimeInstallerOptions) =>
     ({ callbackName }: CommonInstallOptions) => {
         try {
             const builder = ScriptApp.newTrigger(callbackName)
