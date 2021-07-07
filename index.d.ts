@@ -103,6 +103,10 @@ declare namespace GoogleAppsScript {
             )[];
         }
 
+        interface TrackTriggerOptions extends CommonOptions {
+            installerConfig?: Partial<InstallOptions>;
+        }
+
         interface TrackTriggersOptions extends CommonOptions {
             funcName?: string;
             type: TriggerTypes;
@@ -140,11 +144,17 @@ declare namespace GoogleAppsScript {
         }
 
         interface TriggerApp {
+            trackTrigger(
+                trigger: GoogleAppsScript.Script.Trigger,
+                options?: TrackTriggerOptions
+            ): boolean;
+            trackTriggers(options?: TrackTriggersOptions): boolean;
+        }
+
+        interface TriggerApp {
             deleteTracked(options: TrackedTriggerInfo): boolean;
             deleteAllTracked(options?: CommonOptions): boolean;
             deleteAllIf(options: TriggerDeleteOptions): any;
-
-            trackTriggers(options?: TrackTriggersOptions): boolean;
             untrackTriggers(options?: CommonOptions): boolean;
         }
 

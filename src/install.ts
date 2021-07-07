@@ -34,6 +34,7 @@ type InstallOptions = CommonInstallOptions & {
 };
 
 const installTrigger_ = ({
+    installerConfig,
     unique = false,
     type,
     onError,
@@ -52,7 +53,8 @@ const installTrigger_ = ({
 
     const installed = installer({ callbackName, onError });
 
-    if (installed && isTrackingTriggers()) trackTrigger(installed);
+    if (installed && isTrackingTriggers())
+        trackTrigger(installed, { onError, installerConfig });
 
     installed
         ? onInstall(installed)
@@ -107,8 +109,7 @@ const getOrInstallTrigger = ({
     installerConfig = {},
     onError = console.warn,
     onInstall = (trg) => console.log(`installed: ${trg.getHandlerFunction()}`),
-    onInstallFailure = (msg) =>
-        console.warn(`failed to install trigger: ${msg}`),
+    onInstallFailure = (msg) => console.warn(`failed to install: ${msg}`),
     onGet = (trg) => console.log(`found handler: ${trg.getHandlerFunction()}`),
     type = TriggerTypes.CLOCK,
 }: InstallOptions) => {
@@ -133,11 +134,13 @@ const getOrInstallTrigger = ({
 
         if (oldTrigger) {
             const isTracking = !!findTrackedTrigger(info);
-            isTracking || trackTrigger(oldTrigger);
+            isTracking ||
+                trackTrigger(oldTrigger, { onError, installerConfig });
             return onGet(oldTrigger);
         }
 
         return installTrigger_({
+            installerConfig,
             id,
             unique,
             type,

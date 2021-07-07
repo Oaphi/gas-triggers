@@ -13,6 +13,7 @@ type TriggerInfo = {
     funcName: string;
     id: string;
     type: EventType;
+    installerConfig: Partial<InstallOptions>;
 };
 
 type TrackedTriggerInfo = {
@@ -27,6 +28,10 @@ type GetInfoOptions = Partial<TriggerInfo> & {
 type TrackOptions = ErrLoggable<{
     type?: TriggerType;
     onAlreadyTracking?: () => void;
+}>;
+
+type TrackTriggerOptions = ErrLoggable<{
+    installerConfig?: Partial<InstallOptions>;
 }>;
 
 type UpdateTrackedOptions = ErrLoggable<{ id: string; record: string }>;
@@ -50,22 +55,24 @@ const infoToRecord_ = ({
     type,
     enabled,
     deleted,
+    installerConfig,
 }: InfoToRecordOptions) =>
     `${funcName}/${type}/${enabled ? "enabled" : "disabled"}/${
         deleted ? "deleted" : ""
-    }`;
+    }/${JSON.stringify(installerConfig)}`;
 
 /**
  * @private
  */
 const recordToInfo_ = (record: string, id: string): TrackedTriggerInfo => {
-    const [funcName, type, state, deleted] = record.split("/");
+    const [funcName, type, state, deleted, config] = record.split("/");
     return {
         funcName,
         type: <EventType>type,
         id,
         enabled: state === "enabled",
         deleted: deleted === "deleted",
+        installerConfig: JSON.parse(config || "{}"),
     };
 };
 
@@ -127,7 +134,10 @@ const untrackTriggers = ({
  */
 const trackTrigger = (
     trigger: GoogleAppsScript.Script.Trigger,
-    onError = (err: Error) => console.warn(err)
+    {
+        onError = (err) => console.warn(err),
+        installerConfig = {},
+    }: TrackTriggerOptions
 ) => {
     try {
         const key = getTrackingPropertyName_();
@@ -135,7 +145,7 @@ const trackTrigger = (
 
         const trackingList = JSON.parse(getProperty_(key, "{}"));
 
-        const { id, ...rest } = triggerToInfo_(trigger);
+        const { id, ...rest } = triggerToInfo_(trigger, installerConfig);
 
         const record = infoToRecord_({
             enabled: true,

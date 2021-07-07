@@ -44,10 +44,14 @@ const listTrackedTriggers = () => {
     );
 };
 
-const triggerToInfo_ = (trg: GoogleAppsScript.Script.Trigger): TriggerInfo => ({
+const triggerToInfo_ = (
+    trg: GoogleAppsScript.Script.Trigger,
+    installerConfig: Partial<InstallOptions> = {}
+): TriggerInfo => ({
     funcName: trg.getHandlerFunction(),
     id: trg.getUniqueId(),
     type: <EventType>JSON.stringify(trg.getEventType()),
+    installerConfig,
 });
 
 /**
@@ -72,7 +76,7 @@ const listTriggers = ({
 
         const tgs = typeMap.get(type)!.apply(ScriptApp, params);
 
-        return safe ? tgs.map(triggerToInfo_) : tgs;
+        return safe ? tgs.map((t) => triggerToInfo_(t)) : tgs;
     } catch (error) {
         onError(error);
         return [];
