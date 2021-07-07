@@ -68,37 +68,6 @@ const installTrigger_ = ({
 };
 
 /**
- * @summary reinstalls a tracked trigger
- */
-const getOrReinstallTrigger = ({
-    callbackName,
-    type = "CLOCK",
-    id,
-    onError = (err) => console.warn(err),
-    ...rest
-}: InstallOptions) => {
-    try {
-        const deleted = deleteTracked({
-            onError,
-            id,
-            type,
-            funcName: callbackName,
-        });
-
-        if (!deleted) return false;
-
-        return !!getOrInstallTrigger({
-            onError,
-            callbackName,
-            ...rest,
-        });
-    } catch (error) {
-        onError(error);
-        return false;
-    }
-};
-
-/**
  * @summary gets ore installs a tracked trigger
  */
 const getOrInstallTrigger = ({
@@ -158,5 +127,4 @@ const getOrInstallTrigger = ({
 
 Object.assign(this, {
     getOrInstallTrigger,
-    getOrReinstallTrigger,
 });

@@ -58,15 +58,13 @@ declare namespace GoogleAppsScript {
             unique?: boolean;
         }
 
+        interface ConditionalReinstallOptions extends TriggerInstallOptions {
+            comparator: (info: TriggerInfo) => boolean;
+        }
+
         interface TriggerDeleteOptions extends CommonOptions {
             email?: string;
             onDelete: (email: string) => any;
-        }
-
-        interface ReschedulableInstallOptions extends TriggerInstallOptions {
-            interval?: number;
-            period: "seconds" | "minutes" | "hours" | "dates";
-            times?: number;
         }
 
         interface ClosestValueSettings {
@@ -126,10 +124,14 @@ declare namespace GoogleAppsScript {
                 settings: TriggerInstallOptions
             ): GoogleAppsScript.Script.Trigger | null;
             getTrackedTriggerInfo(options?: any): TrackedTriggerInfo | null;
-            getOrInstallSelfRescheduling(
-                settings: TriggerInstallOptions
-            ): GoogleAppsScript.Script.Trigger | null;
             isInHourlyRange: isInHourlyRange;
+        }
+
+        interface TriggerApp {
+            getOrReinstallTrigger(settings: TriggerInstallOptions): boolean;
+            getOrReinstallTriggerIf(
+                settings: ConditionalReinstallOptions
+            ): boolean;
         }
 
         interface TriggerApp {
