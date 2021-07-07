@@ -8,7 +8,7 @@
     "build": "npm run clean && tsc && npm run test",
     "push": "npm run build && clasp push --force",
     "deploy": "clasp deploy -i AKfycbyub64dT1nu1Zhyg2RVbJ7Tm9RCHMqeZr015sQHRdrWO9euB6EoGi8pSkX1SEBdQv0Lhg",
-    "version": "npm run push --force && npm run deploy",
+    "version": "npm run push && npm run deploy",
     "list": "clasp deployments"
   },
   "repository": {
