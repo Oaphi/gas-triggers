@@ -52,7 +52,10 @@ declare namespace GoogleAppsScript {
             installerConfig?: I;
             onInstall?: (trg: GoogleAppsScript.Script.Trigger) => any;
             onInstallFailure?: (msg: string) => any;
-            onGet?: (trg: GoogleAppsScript.Script.Trigger) => any;
+            onGet?: (
+                trg: GoogleAppsScript.Script.Trigger,
+                info: TriggerInfo<I> | null
+            ) => any;
             type?: TriggerTypes;
             unique?: boolean;
         }

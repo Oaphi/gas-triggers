@@ -61,15 +61,13 @@ const deleteTracked = ({ source = "project", onError = console.warn, ...triggerI
         });
         if (!triggers.length)
             return true;
-        const filter = makeTriggerFilter_(triggerInfo);
-        const trigger = triggers.find(filter);
+        const trigger = triggers.find(makeTriggerFilter_(triggerInfo));
         if (!trigger)
             return false;
         const status = untrackTrigger({ trigger, onError });
         if (!status)
             return false;
         ScriptApp.deleteTrigger(trigger);
-        ScriptApp.invalidateAuth();
         return true;
     }
     catch (error) {
@@ -215,10 +213,11 @@ const getOrInstallTrigger = ({ unique = false, callbackName, id, installer, inst
         const info = { id, type, funcName: callbackName };
         const oldTrigger = triggers.find(makeTriggerFilter_(info));
         if (oldTrigger) {
-            const isTracking = !!findTrackedTrigger(info);
+            const isTracking = findTrackedTrigger(info);
             isTracking ||
                 trackTrigger(oldTrigger, { onError, installerConfig });
-            return onGet(oldTrigger);
+            onGet(oldTrigger, findTrackedTrigger(info) || null);
+            return oldTrigger;
         }
         return installTrigger_({
             installerConfig,
@@ -311,8 +310,13 @@ const getOrReinstallTrigger = ({ callbackName, type = "CLOCK", id, onError = (er
 };
 const getOrReinstallTriggerIf = ({ comparator, onError = (err) => console.warn(err), ...rest }) => {
     try {
-        const trigger = getOrInstallTrigger({ onError, ...rest });
-        if (!trigger || !comparator(triggerToInfo_(trigger)))
+        let info = null;
+        getOrInstallTrigger({
+            onError,
+            onGet: (_t, i) => (info = i),
+            ...rest,
+        });
+        if (!info || !comparator(info))
             return false;
         return getOrReinstallTrigger({ onError, ...rest });
     }

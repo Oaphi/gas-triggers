@@ -42,9 +42,15 @@ const getOrReinstallTriggerIf = ({
     ...rest
 }: ConditionalReinstallOptions) => {
     try {
-        const trigger: GoogleAppsScript.Script.Trigger | null =
-            getOrInstallTrigger({ onError, ...rest });
-        if (!trigger || !comparator(triggerToInfo_(trigger))) return false;
+        let info: TriggerInfo | null = null;
+
+        getOrInstallTrigger({
+            onError,
+            onGet: (_t, i) => (info = i),
+            ...rest,
+        });
+
+        if (!info || !comparator(info)) return false;
         return getOrReinstallTrigger({ onError, ...rest });
     } catch (error) {
         onError(error);

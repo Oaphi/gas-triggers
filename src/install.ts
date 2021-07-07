@@ -26,7 +26,10 @@ type InstallOptions = CommonInstallOptions & {
     installer: (
         options: CommonInstallOptions
     ) => GoogleAppsScript.Script.Trigger | null;
-    onGet?: (trigger: GoogleAppsScript.Script.Trigger) => any;
+    onGet?: (
+        trigger: GoogleAppsScript.Script.Trigger,
+        info: TriggerInfo | null
+    ) => any;
     onInstall?: (trigger: GoogleAppsScript.Script.Trigger) => void;
     onInstallFailure?: (
         options: Pick<InstallOptions, "callbackName" | "type" | "unique">
@@ -102,10 +105,11 @@ const getOrInstallTrigger = ({
         const oldTrigger = triggers.find(makeTriggerFilter_(info));
 
         if (oldTrigger) {
-            const isTracking = !!findTrackedTrigger(info);
+            const isTracking = findTrackedTrigger(info);
             isTracking ||
                 trackTrigger(oldTrigger, { onError, installerConfig });
-            return onGet(oldTrigger);
+            onGet(oldTrigger, findTrackedTrigger(info) || null);
+            return oldTrigger;
         }
 
         return installTrigger_({
