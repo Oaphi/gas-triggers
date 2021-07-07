@@ -81,7 +81,7 @@ declare namespace GoogleAppsScript {
         interface TriggerInfo {
             funcName: string;
             id: string;
-            type: string;
+            type: TriggerTypes;
         }
 
         interface TrackedTriggerInfo extends TriggerInfo {
@@ -126,14 +126,24 @@ declare namespace GoogleAppsScript {
                 settings: TriggerInstallOptions
             ): GoogleAppsScript.Script.Trigger | null;
             isInHourlyRange: isInHourlyRange;
+        }
+
+        interface TriggerApp {
+            findTrackedTrigger(
+                info: Partial<TriggerInfo>
+            ): TrackedTriggerInfo | null;
+        }
+
+        interface TriggerApp {
             listTriggers: listTriggers;
+            listTrackedTriggers(): TrackedTriggerInfo[];
         }
 
         interface TriggerApp {
             deleteTracked(options: TrackedTriggerInfo): boolean;
             deleteAllTracked(options?: CommonOptions): boolean;
             deleteAllIf(options: TriggerDeleteOptions): any;
-            listTrackedTriggers(): TrackedTriggerInfo[];
+
             trackTriggers(options?: TrackTriggersOptions): boolean;
             untrackTriggers(options?: CommonOptions): boolean;
         }
