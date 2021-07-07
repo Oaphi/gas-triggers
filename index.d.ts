@@ -17,6 +17,22 @@ declare namespace GoogleAppsScript {
     }
 
     namespace Triggers {
+        namespace Installers {
+            interface Common {}
+
+            interface TimeDriven extends Common {
+                at?: number | string | Date;
+                atMinute?: number;
+                atHour?: number;
+                days?: number;
+                hourly?: number;
+                minutely?: number;
+                weeks?: number;
+                weekDay?: GoogleAppsScript.Base.Weekday;
+                timezone?: string;
+            }
+        }
+
         enum TriggerTypes {
             SUBMIT,
             CHANGE,
@@ -28,29 +44,12 @@ declare namespace GoogleAppsScript {
             onError?: (err: Error) => void;
         }
 
-        interface TriggerInstallerOptions {
-            callbackName: string;
-        }
-
-        interface TimedTriggerOptions {
-            at?: number | string | Date;
-            atMinute?: number;
-            atHour?: number;
-            days?: number;
-            hourly?: number;
-            minutely?: number;
-            weeks?: number;
-            weekDay?: GoogleAppsScript.Base.Weekday;
-            timezone?: string;
-        }
-
-        interface TriggerInstallOptions extends CommonOptions {
+        interface TriggerInstallOptions<I extends Installers.Common>
+            extends CommonOptions {
             callbackName: string;
             id?: string;
-            installer?: <R>(
-                options: TriggerInstallerOptions & CommonOptions
-            ) => R;
-            installerConfig?: TimedTriggerOptions;
+            installer?: <R>(options: I) => R;
+            installerConfig?: I;
             onInstall?: (trg: GoogleAppsScript.Script.Trigger) => any;
             onInstallFailure?: (msg: string) => any;
             onGet?: (trg: GoogleAppsScript.Script.Trigger) => any;
@@ -58,8 +57,9 @@ declare namespace GoogleAppsScript {
             unique?: boolean;
         }
 
-        interface ConditionalReinstallOptions extends TriggerInstallOptions {
-            comparator: (info: TriggerInfo) => boolean;
+        interface ConditionalReinstallOptions<I extends Installers.Common>
+            extends TriggerInstallOptions<I> {
+            comparator: (info: TriggerInfo<I>) => boolean;
         }
 
         interface TriggerDeleteOptions extends CommonOptions {
@@ -76,13 +76,15 @@ declare namespace GoogleAppsScript {
             (options: { hour?: number; start?: number; end?: number }): boolean;
         }
 
-        interface TriggerInfo {
+        interface TriggerInfo<I extends Installers.Common> {
             funcName: string;
             id: string;
             type: TriggerTypes;
+            installerConfig: Partial<I>;
         }
 
-        interface TrackedTriggerInfo extends TriggerInfo {
+        interface TrackedTriggerInfo<I extends Installers.Common>
+            extends TriggerInfo<I> {
             deleted: boolean;
             enabled: boolean;
         }
@@ -94,15 +96,10 @@ declare namespace GoogleAppsScript {
             type?: TriggerType;
         }
 
-        interface listTriggers {
-            (options: ListTriggersOptions): (
-                | GoogleAppsScript.Script.Trigger
-                | TriggerInfo
-            )[];
-        }
-
         interface TrackTriggerOptions extends CommonOptions {
-            installerConfig?: Partial<InstallOptions>;
+            installerConfig?: Partial<
+                Installers.Common | Installers.TimeDriven
+            >;
         }
 
         interface TrackTriggersOptions extends CommonOptions {
@@ -120,29 +117,37 @@ declare namespace GoogleAppsScript {
         interface TriggerApp {
             TriggerTypes: typeof TriggerTypes;
             closestValue(settings: ClosestValueSettings): any;
-            getOrInstallTrigger(
-                settings: TriggerInstallOptions
+            getOrInstallTrigger<I extends Installers.Common>(
+                settings: TriggerInstallOptions<I>
             ): GoogleAppsScript.Script.Trigger | null;
-            getTrackedTriggerInfo(options?: any): TrackedTriggerInfo | null;
+            getTrackedTriggerInfo<I extends Installers.Common>(
+                options?: any
+            ): TrackedTriggerInfo<I> | null;
             isInHourlyRange: isInHourlyRange;
         }
 
         interface TriggerApp {
-            getOrReinstallTrigger(settings: TriggerInstallOptions): boolean;
-            getOrReinstallTriggerIf(
-                settings: ConditionalReinstallOptions
+            getOrReinstallTrigger<I extends Installers.Common>(
+                settings: TriggerInstallOptions<I>
+            ): boolean;
+            getOrReinstallTriggerIf<I extends Installers.Common>(
+                settings: ConditionalReinstallOptions<I>
             ): boolean;
         }
 
         interface TriggerApp {
-            findTrackedTrigger(
-                info: Partial<TriggerInfo>
-            ): TrackedTriggerInfo | null;
+            findTrackedTrigger<I extends Installers.Common>(
+                info: Partial<TriggerInfo<I>>
+            ): TrackedTriggerInfo<I> | null;
         }
 
         interface TriggerApp {
-            listTriggers: listTriggers;
-            listTrackedTriggers(): TrackedTriggerInfo[];
+            listTriggers<I extends Installers.Common>(
+                options: ListTriggersOptions
+            ): (GoogleAppsScript.Script.Trigger | TriggerInfo<I>)[];
+            listTrackedTriggers<
+                I extends Installers.Common
+            >(): TrackedTriggerInfo<I>[];
         }
 
         interface TriggerApp {
@@ -154,7 +159,9 @@ declare namespace GoogleAppsScript {
         }
 
         interface TriggerApp {
-            deleteTracked(options: TrackedTriggerInfo): boolean;
+            deleteTracked<I extends Installers.Common>(
+                options: TrackedTriggerInfo<I>
+            ): boolean;
             deleteAllTracked(options?: CommonOptions): boolean;
             deleteAllIf(options: TriggerDeleteOptions): any;
             untrackTriggers(options?: CommonOptions): boolean;
@@ -171,22 +178,14 @@ declare namespace GoogleAppsScript {
 
         interface TriggerApp {
             timedTriggerInstaller(
-                config: TimedTriggerOptions
-            ): (
-                opts: TriggerInstallerOptions
-            ) => GoogleAppsScript.Script.Trigger | null;
-
+                config: Installers.TimeDriven
+            ): GoogleAppsScript.Script.Trigger | null;
             editTriggerInstaller(
-                config: CommonOptions
-            ): (
-                opts: TriggerInstallerOptions
-            ) => GoogleAppsScript.Script.Trigger | null;
-
+                config: Installers.Common
+            ): GoogleAppsScript.Script.Trigger | null;
             changeTriggerInstaller(
-                config: CommonOptions
-            ): (
-                opts: TriggerInstallerOptions
-            ) => GoogleAppsScript.Script.Trigger | null;
+                config: Installers.Common
+            ): GoogleAppsScript.Script.Trigger | null;
         }
     }
 }
