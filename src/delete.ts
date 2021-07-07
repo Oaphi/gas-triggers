@@ -28,8 +28,7 @@ const deleteTracked = ({
 
         if (!triggers.length) return true;
 
-        const filter = makeTriggerFilter_(triggerInfo);
-        const trigger = triggers.find(filter);
+        const trigger = triggers.find(makeTriggerFilter_(triggerInfo));
 
         if (!trigger) return false;
 
@@ -38,7 +37,6 @@ const deleteTracked = ({
         if (!status) return false;
 
         ScriptApp.deleteTrigger(trigger);
-        ScriptApp.invalidateAuth();
         return true;
     } catch (error) {
         onError(error);
