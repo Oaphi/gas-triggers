@@ -105,6 +105,13 @@ Object.assign(this, {
     deleteAllTracked,
     deleteAllIf,
 });
+const findTrackedTrigger = (info) => {
+    const tracked = listTrackedTriggers();
+    return tracked.find(makeTriggerInfoFilter_(info)) || null;
+};
+Object.assign(this, {
+    findTrackedTrigger,
+});
 const guardTracked = (eventObject, callback) => {
     const { name } = callback;
     const { id, enabled, deleted } = getTrackedTriggerInfo({ funcName: name }) || {};
@@ -226,10 +233,13 @@ const getOrInstallTrigger = ({ unique = false, callbackName, id, installer, inst
             [TriggerTypes.CLOCK, timedTriggerInstaller(installerConfig)],
             [TriggerTypes.EDIT, editTriggerInstaller(installerConfig)],
         ]);
-        const filter = makeTriggerFilter_({ id, type, funcName: callbackName });
-        const oldTrigger = triggers.find(filter);
-        if (oldTrigger)
+        const info = { id, type, funcName: callbackName };
+        const oldTrigger = triggers.find(makeTriggerFilter_(info));
+        if (oldTrigger) {
+            const isTracking = !!findTrackedTrigger(info);
+            isTracking || trackTrigger(oldTrigger);
             return onGet(oldTrigger);
+        }
         return installTrigger_({
             id,
             unique,
@@ -253,16 +263,16 @@ Object.assign(this, {
 const makeTriggerFilter_ = ({ funcName, id, type }) => (trigger) => {
     const { funcName: f, type: t, id: i } = triggerToInfo_(trigger);
     const sameFunc = !funcName || funcName === f;
-    const sameType = !type || type === t;
+    const sameType = !type || type === t.replace(/"/g, "");
     const sameId = !id || id === i;
-    return (sameFunc && sameType) || sameId;
+    return [sameFunc, sameType, sameId].every(Boolean);
 };
 const makeTriggerInfoFilter_ = ({ funcName, id, type }) => (info) => {
     const { funcName: f, id: i, type: t } = info;
     const sameFunc = !funcName || funcName === f;
-    const sameType = !type || type === t;
+    const sameType = !type || type === t.replace(/"/g, "");
     const sameId = !id || id === i;
-    return (sameFunc && sameType) || sameId;
+    return [sameFunc, sameType, sameId].every(Boolean);
 };
 const listTrackedTriggers = () => {
     const key = getTrackingPropertyName_();
