@@ -127,11 +127,15 @@ const getOrInstallTrigger = ({
             [TriggerTypes.EDIT, editTriggerInstaller(installerConfig)],
         ]);
 
-        const filter = makeTriggerFilter_({ id, type, funcName: callbackName });
+        const info = { id, type, funcName: callbackName };
 
-        const oldTrigger = triggers.find(filter);
+        const oldTrigger = triggers.find(makeTriggerFilter_(info));
 
-        if (oldTrigger) return onGet(oldTrigger);
+        if (oldTrigger) {
+            const isTracking = !!findTrackedTrigger(info);
+            isTracking || trackTrigger(oldTrigger);
+            return onGet(oldTrigger);
+        }
 
         return installTrigger_({
             id,
