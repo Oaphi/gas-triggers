@@ -112,12 +112,12 @@ declare namespace GoogleAppsScript {
 
         class DependencyError extends Error {}
 
-        interface TriggerApp {
+        interface TriggersApp {
             use(service: GoogleAppsScript.Properties.PropertiesService): void;
             DependencyError: DependencyError;
         }
 
-        interface TriggerApp {
+        interface TriggersApp {
             TriggerTypes: typeof TriggerTypes;
             closestValue(settings: ClosestValueSettings): any;
             getOrInstallTrigger<I extends Installers.Common>(
@@ -129,7 +129,7 @@ declare namespace GoogleAppsScript {
             isInHourlyRange: isInHourlyRange;
         }
 
-        interface TriggerApp {
+        interface TriggersApp {
             getOrReinstallTrigger<I extends Installers.Common>(
                 settings: TriggerInstallOptions<I>
             ): boolean;
@@ -138,13 +138,13 @@ declare namespace GoogleAppsScript {
             ): boolean;
         }
 
-        interface TriggerApp {
+        interface TriggersApp {
             findTrackedTrigger<I extends Installers.Common>(
                 info: Partial<TriggerInfo<I>>
             ): TrackedTriggerInfo<I> | null;
         }
 
-        interface TriggerApp {
+        interface TriggersApp {
             listTriggers<I extends Installers.Common>(
                 options: ListTriggersOptions
             ): (GoogleAppsScript.Script.Trigger | TriggerInfo<I>)[];
@@ -153,7 +153,7 @@ declare namespace GoogleAppsScript {
             >(): TrackedTriggerInfo<I>[];
         }
 
-        interface TriggerApp {
+        interface TriggersApp {
             trackTrigger(
                 trigger: GoogleAppsScript.Script.Trigger,
                 options?: TrackTriggerOptions
@@ -161,7 +161,7 @@ declare namespace GoogleAppsScript {
             trackTriggers(options?: TrackTriggersOptions): boolean;
         }
 
-        interface TriggerApp {
+        interface TriggersApp {
             deleteTracked<I extends Installers.Common>(
                 options: TrackedTriggerInfo<I>
             ): boolean;
@@ -170,7 +170,7 @@ declare namespace GoogleAppsScript {
             untrackTriggers(options?: CommonOptions): boolean;
         }
 
-        interface TriggerApp {
+        interface TriggersApp {
             enableTracked(options: TrackTriggersOptions): boolean;
             disableTracked(options: TrackTriggersOptions): boolean;
             guardTracked<T = GoogleAppsScript.Events.AppsScriptEvent>(
@@ -179,7 +179,7 @@ declare namespace GoogleAppsScript {
             ): any;
         }
 
-        interface TriggerApp {
+        interface TriggersApp {
             timedTriggerInstaller(
                 config: Installers.TimeDriven
             ): GoogleAppsScript.Script.Trigger | null;
@@ -193,5 +193,5 @@ declare namespace GoogleAppsScript {
     }
 }
 
-declare var TriggersApp: GoogleAppsScript.Triggers.TriggerApp;
-declare var Triggers: GoogleAppsScript.Triggers.TriggerApp;
+declare var TriggersApp: GoogleAppsScript.Triggers.TriggersApp;
+declare var Triggers: GoogleAppsScript.Triggers.TriggersApp;

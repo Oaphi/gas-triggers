@@ -9,10 +9,10 @@ import { transpile, TranspileOptions } from "typescript";
 import { createContext, runInContext } from "vm";
 
 type TestGlobal = Mocha.Context & {
-    TriggersApp: GoogleAppsScript.Triggers.TriggerApp;
+    TriggersApp: GoogleAppsScript.Triggers.TriggersApp;
 };
 
-describe("FetchConfig", () => {
+describe("TriggersApp", () => {
     before(async () => {
         const base = "./src";
 
