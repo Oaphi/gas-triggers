@@ -93,7 +93,7 @@ declare namespace GoogleAppsScript {
 
         interface ListTriggersOptions extends CommonOptions {
             safe: boolean;
-            type: TriggerType;
+            type?: TriggerType;
         }
 
         interface listTriggers {
