@@ -10,10 +10,10 @@ const makeTriggerFilter_ =
         const { funcName: f, type: t, id: i } = triggerToInfo_(trigger);
 
         const sameFunc = !funcName || funcName === f;
-        const sameType = !type || type === t;
+        const sameType = !type || type === t.replace(/"/g, "");
         const sameId = !id || id === i;
 
-        return (sameFunc && sameType) || sameId;
+        return [sameFunc, sameType, sameId].every(Boolean);
     };
 
 /**
@@ -26,10 +26,10 @@ const makeTriggerInfoFilter_ =
         const { funcName: f, id: i, type: t } = info;
 
         const sameFunc = !funcName || funcName === f;
-        const sameType = !type || type === t;
+        const sameType = !type || type === t.replace(/"/g, "");
         const sameId = !id || id === i;
 
-        return (sameFunc && sameType) || sameId;
+        return [sameFunc, sameType, sameId].every(Boolean);
     };
 
 /**
