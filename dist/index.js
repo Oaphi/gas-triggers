@@ -182,7 +182,7 @@ var TriggerTypes;
     TriggerTypes["CHANGE"] = "ON_CHANGE";
     TriggerTypes["SUBMIT"] = "ON_FORM_SUBMIT";
 })(TriggerTypes || (TriggerTypes = {}));
-const installTrigger_ = ({ unique = false, type, onError, onInstall, onInstallFailure, installer, callbackName, }) => {
+const installTrigger_ = ({ installerConfig, unique = false, type, onError, onInstall, onInstallFailure, installer, callbackName, }) => {
     if (unique) {
         const alreadyInstalled = getTrackedTriggerInfo({
             funcName: callbackName,
@@ -193,7 +193,7 @@ const installTrigger_ = ({ unique = false, type, onError, onInstall, onInstallFa
     }
     const installed = installer({ callbackName, onError });
     if (installed && isTrackingTriggers())
-        trackTrigger(installed);
+        trackTrigger(installed, { onError, installerConfig });
     installed
         ? onInstall(installed)
         : onInstallFailure({
@@ -203,28 +203,7 @@ const installTrigger_ = ({ unique = false, type, onError, onInstall, onInstallFa
         });
     return installed;
 };
-const getOrReinstallTrigger = ({ callbackName, type = "CLOCK", id, onError = (err) => console.warn(err), ...rest }) => {
-    try {
-        const deleted = deleteTracked({
-            onError,
-            id,
-            type,
-            funcName: callbackName,
-        });
-        if (!deleted)
-            return false;
-        return !!getOrInstallTrigger({
-            onError,
-            callbackName,
-            ...rest,
-        });
-    }
-    catch (error) {
-        onError(error);
-        return false;
-    }
-};
-const getOrInstallTrigger = ({ unique = false, callbackName, id, installer, installerConfig = {}, onError = console.warn, onInstall = (trg) => console.log(`installed: ${trg.getHandlerFunction()}`), onInstallFailure = (msg) => console.warn(`failed to install trigger: ${msg}`), onGet = (trg) => console.log(`found handler: ${trg.getHandlerFunction()}`), type = TriggerTypes.CLOCK, }) => {
+const getOrInstallTrigger = ({ unique = false, callbackName, id, installer, installerConfig = {}, onError = console.warn, onInstall = (trg) => console.log(`installed: ${trg.getHandlerFunction()}`), onInstallFailure = (msg) => console.warn(`failed to install: ${msg}`), onGet = (trg) => console.log(`found handler: ${trg.getHandlerFunction()}`), type = TriggerTypes.CLOCK, }) => {
     try {
         const triggers = ScriptApp.getProjectTriggers();
         const installersMap = new Map([
@@ -237,10 +216,12 @@ const getOrInstallTrigger = ({ unique = false, callbackName, id, installer, inst
         const oldTrigger = triggers.find(makeTriggerFilter_(info));
         if (oldTrigger) {
             const isTracking = !!findTrackedTrigger(info);
-            isTracking || trackTrigger(oldTrigger);
+            isTracking ||
+                trackTrigger(oldTrigger, { onError, installerConfig });
             return onGet(oldTrigger);
         }
         return installTrigger_({
+            installerConfig,
             id,
             unique,
             type,
@@ -258,7 +239,6 @@ const getOrInstallTrigger = ({ unique = false, callbackName, id, installer, inst
 };
 Object.assign(this, {
     getOrInstallTrigger,
-    getOrReinstallTrigger,
 });
 const makeTriggerFilter_ = ({ funcName, id, type }) => (trigger) => {
     const { funcName: f, type: t, id: i } = triggerToInfo_(trigger);
@@ -281,10 +261,11 @@ const listTrackedTriggers = () => {
     const tracked = JSON.parse(getProperty_(key, "{}"));
     return Object.entries(tracked).map(([id, record]) => recordToInfo_(record, id));
 };
-const triggerToInfo_ = (trg) => ({
+const triggerToInfo_ = (trg, installerConfig = {}) => ({
     funcName: trg.getHandlerFunction(),
     id: trg.getUniqueId(),
     type: JSON.stringify(trg.getEventType()),
+    installerConfig,
 });
 const listTriggers = ({ onError = console.warn, safe = false, type = "project", } = {}) => {
     try {
@@ -296,7 +277,7 @@ const listTriggers = ({ onError = console.warn, safe = false, type = "project", 
         if (type === "user")
             params.push(getActiveDoc_({ onError }));
         const tgs = typeMap.get(type).apply(ScriptApp, params);
-        return safe ? tgs.map(triggerToInfo_) : tgs;
+        return safe ? tgs.map((t) => triggerToInfo_(t)) : tgs;
     }
     catch (error) {
         onError(error);
@@ -306,6 +287,43 @@ const listTriggers = ({ onError = console.warn, safe = false, type = "project", 
 Object.assign(this, {
     listTrackedTriggers,
     listTriggers,
+});
+const getOrReinstallTrigger = ({ callbackName, type = "CLOCK", id, onError = (err) => console.warn(err), ...rest }) => {
+    try {
+        const deleted = deleteTracked({
+            onError,
+            id,
+            type,
+            funcName: callbackName,
+        });
+        if (!deleted)
+            return false;
+        return !!getOrInstallTrigger({
+            onError,
+            callbackName,
+            ...rest,
+        });
+    }
+    catch (error) {
+        onError(error);
+        return false;
+    }
+};
+const getOrReinstallTriggerIf = ({ comparator, onError = (err) => console.warn(err), ...rest }) => {
+    try {
+        const trigger = getOrInstallTrigger({ onError, ...rest });
+        if (!trigger || !comparator(triggerToInfo_(trigger)))
+            return false;
+        return getOrReinstallTrigger({ onError, ...rest });
+    }
+    catch (error) {
+        onError(error);
+        return false;
+    }
+};
+Object.assign(this, {
+    getOrReinstallTrigger,
+    getOrReinstallTriggerIf,
 });
 const editTriggerInstaller = ({ spreadsheet = SpreadsheetApp.getActiveSpreadsheet(), onError = (err) => console.warn(err), } = {}) => ({ callbackName }) => {
     try {
@@ -348,15 +366,16 @@ Object.assign(this, {
     changeTriggerInstaller,
     formSubmitTriggerInstaller,
 });
-const infoToRecord_ = ({ funcName, type, enabled, deleted, }) => `${funcName}/${type}/${enabled ? "enabled" : "disabled"}/${deleted ? "deleted" : ""}`;
+const infoToRecord_ = ({ funcName, type, enabled, deleted, installerConfig, }) => `${funcName}/${type}/${enabled ? "enabled" : "disabled"}/${deleted ? "deleted" : ""}/${JSON.stringify(installerConfig)}`;
 const recordToInfo_ = (record, id) => {
-    const [funcName, type, state, deleted] = record.split("/");
+    const [funcName, type, state, deleted, config] = record.split("/");
     return {
         funcName,
         type: type,
         id,
         enabled: state === "enabled",
         deleted: deleted === "deleted",
+        installerConfig: JSON.parse(config || "{}"),
     };
 };
 const trackTriggers = ({ onAlreadyTracking = () => console.log("already tracking"), onError = (err) => console.warn(err), type = "project", } = {}) => {
@@ -391,13 +410,13 @@ const untrackTriggers = ({ onError = (err) => console.warn(err), } = {}) => {
         return false;
     }
 };
-const trackTrigger = (trigger, onError = (err) => console.warn(err)) => {
+const trackTrigger = (trigger, { onError = (err) => console.warn(err), installerConfig = {}, }) => {
     try {
         const key = getTrackingPropertyName_();
         if (!key)
             return false;
         const trackingList = JSON.parse(getProperty_(key, "{}"));
-        const { id, ...rest } = triggerToInfo_(trigger);
+        const { id, ...rest } = triggerToInfo_(trigger, installerConfig);
         const record = infoToRecord_({
             enabled: true,
             ...rest,
