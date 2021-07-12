@@ -29,7 +29,7 @@
   "devDependencies": {
     "@types/chai": "^4.2.21",
     "@types/google-apps-script": "^1.0.34",
-    "@types/mocha": "^8.2.2",
+    "@types/mocha": "^8.2.3",
     "@types/node": "^16.0.0",
     "@types/sinon": "^10.0.2",
     "chai": "^4.3.4",
