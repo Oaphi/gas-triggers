@@ -110,6 +110,12 @@ declare namespace GoogleAppsScript {
             type: TriggerTypes;
         }
 
+        interface UntrackTriggerOptions<I extends Installers.Common>
+            extends CommonOptions {
+            trigger?: GoogleAppsScript.Script.Trigger;
+            info: TrackedTriggerInfo<I>;
+        }
+
         class DependencyError extends Error {}
 
         interface TriggersApp {
@@ -145,9 +151,11 @@ declare namespace GoogleAppsScript {
         }
 
         interface TriggersApp {
-            listTriggers<I extends Installers.Common>(
+            listTriggers<I extends Installers.Common, S extends boolean = true>(
                 options: ListTriggersOptions
-            ): (GoogleAppsScript.Script.Trigger | TriggerInfo<I>)[];
+            ): (false extends S
+                ? GoogleAppsScript.Script.Trigger
+                : TriggerInfo<I>)[];
             listTrackedTriggers<
                 I extends Installers.Common
             >(): TrackedTriggerInfo<I>[];
@@ -167,7 +175,9 @@ declare namespace GoogleAppsScript {
             ): boolean;
             deleteAllTracked(options?: CommonOptions): boolean;
             deleteAllIf(options: TriggerDeleteOptions): any;
-            untrackTriggers(options?: CommonOptions): boolean;
+            untrackTriggers<I extends Installers.Common>(
+                options?: UntrackTriggerOptions<I>
+            ): boolean;
         }
 
         interface TriggersApp {
