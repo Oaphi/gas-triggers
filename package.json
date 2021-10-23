@@ -28,14 +28,14 @@
   "homepage": "https://github.com/Oaphi/gas-triggers#readme",
   "devDependencies": {
     "@types/chai": "^4.2.22",
-    "@types/google-apps-script": "^1.0.37",
+    "@types/google-apps-script": "^1.0.38",
     "@types/mocha": "^9.0.0",
-    "@types/node": "^16.11.0",
-    "@types/sinon": "^10.0.4",
+    "@types/node": "^16.11.4",
+    "@types/sinon": "^10.0.5",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
     "mocha": "^9.1.3",
     "sinon": "^11.1.2",
-    "ts-node": "^10.3.0"
+    "ts-node": "^10.4.0"
   }
 }
