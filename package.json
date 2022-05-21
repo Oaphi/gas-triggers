@@ -30,12 +30,12 @@
     "@types/chai": "^4.3.1",
     "@types/google-apps-script": "^1.0.47",
     "@types/mocha": "^9.1.1",
-    "@types/node": "^16.11.35",
+    "@types/node": "^16.11.36",
     "@types/sinon": "^10.0.11",
     "chai": "^4.3.6",
     "chai-as-promised": "^7.1.1",
     "mocha": "^9.2.2",
     "sinon": "^11.1.2",
-    "ts-node": "^10.7.0"
+    "ts-node": "^10.8.0"
   }
 }
