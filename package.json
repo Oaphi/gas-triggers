@@ -30,7 +30,7 @@
     "@types/chai": "^4.3.4",
     "@types/google-apps-script": "^1.0.56",
     "@types/mocha": "^9.1.1",
-    "@types/node": "^16.18.3",
+    "@types/node": "^16.18.4",
     "@types/sinon": "^10.0.13",
     "chai": "^4.3.7",
     "chai-as-promised": "^7.1.1",
