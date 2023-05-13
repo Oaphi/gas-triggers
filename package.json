@@ -28,9 +28,9 @@
   "homepage": "https://github.com/Oaphi/gas-triggers#readme",
   "devDependencies": {
     "@types/chai": "^4.3.5",
-    "@types/google-apps-script": "^1.0.62",
+    "@types/google-apps-script": "^1.0.64",
     "@types/mocha": "^9.1.1",
-    "@types/node": "^16.18.26",
+    "@types/node": "^16.18.30",
     "@types/sinon": "^10.0.14",
     "chai": "^4.3.7",
     "chai-as-promised": "^7.1.1",
